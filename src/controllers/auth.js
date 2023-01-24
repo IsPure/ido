@@ -17,8 +17,18 @@ exports.getUsers = async (req,res) => {
     }
 }
 
+exports.protected = async (req,res) => {
+    try {
+        return res.status(200).json({
+           info: 'protected info'
+        })
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 exports.register = async (req,res) => {
-    const { email, password } =req.body;
+    const { email, password } = req.body;
     try {
        const hashedPassword = await hash(password, 10);
 

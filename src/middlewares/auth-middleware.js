@@ -1,3 +1,3 @@
 const passport = require('passport');
 
-exports.module = passport.authenticate('jwt', {session:false})
+exports.userAuth  = passport.authenticate('jwt', { session: false })
