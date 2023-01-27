@@ -68,3 +68,20 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+exports.logout = async (req, res) => {
+  try {
+    return res
+      .status(200)
+      .clearCookie("token", token, { httpOnly: true })
+      .json({
+        success: true,
+        message: "Successfully logged out",
+      });
+  } catch {
+    console.log(error.message);
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+};
