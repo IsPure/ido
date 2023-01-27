@@ -5,13 +5,13 @@ const db = require("../db");
 
 const cookieExtractor = function (req) {
   let token = null;
-  if (req && req.cookie) token = req.cookies["token"];
+  if (req && req.cookies) token = req.cookies["token"];
   return token;
 };
 
 const opts = {
   secretOrKey: SECRET,
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: cookieExtractor,
 };
 
 passport.use(
