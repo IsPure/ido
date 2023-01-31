@@ -1,10 +1,4 @@
--- users  table
-CREATE TABLE users(
-    user_id SERIAL primary key, 
-    email VARCHAR(255) UNIQUE not null,
-    password VARCHAR(255) not null,
-    created_at date default current_date
-);
+
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,

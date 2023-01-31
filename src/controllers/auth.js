@@ -5,7 +5,7 @@ const { SECRET } = require("../constants");
 
 exports.getUsers = async (req, res) => {
   try {
-    const { rows } = await db.query("SELECT user_id, email FROM users");
+    const { rows } = await db.query("SELECT id, email FROM users");
 
     return res.status(200).json({
       success: true,
@@ -52,7 +52,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   let user = req.user;
   let payload = {
-    id: user.user_id,
+    id: user.id,
     email: user.email,
   };
   try {
