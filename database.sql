@@ -1,19 +1,19 @@
 
 CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  created_at date default current_date
+  user_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_email VARCHAR(255) UNIQUE NOT NULL,
+  user_password VARCHAR(255) NOT NULL,
+  created_at DATE DEFAULT current_date
 );
 CREATE TABLE guests (
-  id SERIAL,
-  guest_or_family_name VARCHAR(255) NOT NULL,
-  number_of_guests INT NOT NULL, 
+  guest_id SERIAL,
+  guest_name VARCHAR(255) NOT NULL,
+  guest_number INT NOT NULL, 
   address VARCHAR(500),
   rsvp_status BOOLEAN DEFAULT false, 
   invite_sent BOOLEAN DEFAULT false,
   std_sent BOOLEAN DEFAULT false,
-  user_id INT NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  user_id UUID,
+  PRIMARY KEY (guest_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
