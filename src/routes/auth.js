@@ -22,6 +22,6 @@ router.post("/login", loginValidation, validationMiddleware, login);
 router.get("/logout", logout);
 
 // CRUD Routes
-// router.post("/protected", userAuth, addGuest);
+router.post("/protected", userAuth, addGuest);
 
 module.exports = router;

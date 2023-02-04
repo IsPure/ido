@@ -17,13 +17,16 @@ exports.getUsers = async (req, res) => {
 };
 
 exports.protected = async (req, res) => {
-  console.log("protected function called");
   try {
-    return res.status(200).json({
-      info: "protected info",
-    });
+    const user = await db.query(
+      "SELECT users.user_email, guests.guest_id, guests.guest_name, guests.guest_number, guests.address, guests.rsvp_status, guests.invite_sent, guests.std_sent FROM users LEFT JOIN guests ON users.user_id = guests.user_id WHERE users.user_id = $1",
+      [req.user.id]
+    );
+
+    res.json(user.rows);
   } catch (error) {
     console.log(error.message);
+    res.status(500).send("Server Error!");
   }
 };
 
@@ -83,16 +86,25 @@ exports.logout = async (req, res) => {
   }
 };
 
-// exports.addGuest = async (req, res) => {
-//   try {
-//     const {
-//       name,
-//       numGuest,
-//       address,
-//       rsvpStatus,
-//       inviteStatus,
-//       stdStatus,
-//       user_id,
-//     } = req.body;
-//   } catch (error) {}
-// };
+exports.addGuest = async (req, res) => {
+  try {
+    const { name, numGuest, address, rsvpStatus, inviteStatus, stdStatus } =
+      req.body;
+    const newGuest = await db.query(
+      "INSERT INTO guests (user_id, guest_name, guest_number, address, rsvp_status, invite_sent, std_sent) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [
+        req.user.id,
+        name,
+        numGuest,
+        address,
+        rsvpStatus,
+        inviteStatus,
+        stdStatus,
+      ]
+    );
+    res.json(newGuest.rows);
+    console.log(req.body);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
