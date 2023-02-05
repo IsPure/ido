@@ -3,6 +3,8 @@ const { hash } = require("bcryptjs");
 const { sign } = require("jsonwebtoken");
 const { SECRET } = require("../constants");
 
+// USER ROUTES
+
 exports.getUsers = async (req, res) => {
   try {
     const { rows } = await db.query("SELECT user_id, user_email FROM users");
@@ -15,21 +17,6 @@ exports.getUsers = async (req, res) => {
     console.log(error.message);
   }
 };
-
-exports.protected = async (req, res) => {
-  try {
-    const user = await db.query(
-      "SELECT users.user_email, guests.guest_id, guests.guest_name, guests.guest_number, guests.address, guests.rsvp_status, guests.invite_sent, guests.std_sent FROM users LEFT JOIN guests ON users.user_id = guests.user_id WHERE users.user_id = $1",
-      [req.user.id]
-    );
-
-    res.json(user.rows);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).send("Server Error!");
-  }
-};
-
 exports.register = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -51,7 +38,6 @@ exports.register = async (req, res) => {
     });
   }
 };
-
 exports.login = async (req, res) => {
   let user = req.user;
   let payload = {
@@ -71,7 +57,6 @@ exports.login = async (req, res) => {
     });
   }
 };
-
 exports.logout = async (req, res) => {
   try {
     return res.status(200).clearCookie("token", { httpOnly: true }).json({
@@ -86,6 +71,36 @@ exports.logout = async (req, res) => {
   }
 };
 
+// GUEST LIST ROUTES
+
+//  gets individual user guest list
+exports.protected = async (req, res) => {
+  try {
+    const user = await db.query(
+      "SELECT users.user_email, guests.guest_id, guests.guest_name, guests.guest_number, guests.address, guests.rsvp_status, guests.invite_sent, guests.std_sent FROM users LEFT JOIN guests ON users.user_id = guests.user_id WHERE users.user_id = $1",
+      [req.user.id]
+    );
+
+    res.json(user.rows);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Server Error!");
+  }
+};
+//  gets all users' guest list
+exports.allGuests = async (req, res) => {
+  try {
+    const user = await db.query(
+      "SELECT users.user_email, guests.guest_id, guests.guest_name, guests.guest_number, guests.address, guests.rsvp_status, guests.invite_sent, guests.std_sent FROM users LEFT JOIN guests ON users.user_id = guests.user_id"
+    );
+
+    res.json(user.rows);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Server Error!");
+  }
+};
+// add guest to your guest list
 exports.addGuest = async (req, res) => {
   try {
     const { name, numGuest, address, rsvpStatus, inviteStatus, stdStatus } =
@@ -106,5 +121,45 @@ exports.addGuest = async (req, res) => {
     console.log(req.body);
   } catch (error) {
     console.log(error.message);
+  }
+};
+// update guest
+exports.updateGuest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, numGuest, address, rsvpStatus, inviteStatus, stdStatus } =
+      req.body;
+    const updatingGuest = await db.query(
+      "UPDATE guests SET guest_name = $2, guest_number = $3, address = $4, rsvp_status = $5, invite_sent = $6, std_sent = $7 WHERE guest_id = $1 RETURNING *",
+      [id, name, numGuest, address, rsvpStatus, inviteStatus, stdStatus]
+    );
+    if (updatingGuest.rows === 0) {
+      return res.json("You are not authorized to change this guest's info.");
+    }
+    res.json("Guest was updated successfully");
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Server Error");
+  }
+};
+// delete guest
+exports.deleteGuest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletingGuest = await db.query(
+      "DELETE FROM guests WHERE guest_id = $1",
+      [id]
+    );
+    res.json("Guest deleted successfully");
+    if (deletingGuest.rowCount === 0) {
+      return res.status(404).json({ error: "Guest not found" });
+    }
+    res.status(204).send();
+  } catch (error) {
+    console.error(error.message);
+    if (process.env.NODE_ENV === "development") {
+      return res.status(500).json({ error: error.message });
+    }
+    res.status(500).send();
   }
 };

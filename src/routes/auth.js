@@ -6,6 +6,9 @@ const {
   protected,
   logout,
   addGuest,
+  allGuests,
+  updateGuest,
+  deleteGuest,
 } = require("../controllers/auth");
 const {
   validationMiddleware,
@@ -16,12 +19,15 @@ const router = Router();
 
 // User Routes
 router.get("/get-users", getUsers);
-router.get("/protected", userAuth, protected);
 router.post("/register", registerValidation, validationMiddleware, register);
 router.post("/login", loginValidation, validationMiddleware, login);
 router.get("/logout", logout);
 
 // CRUD Routes
+router.get("/protected", userAuth, protected);
 router.post("/protected", userAuth, addGuest);
+router.get("/all-guests", userAuth, allGuests);
+router.put("/protected/:id", userAuth, updateGuest);
+router.delete("/protected/:id", userAuth, deleteGuest);
 
 module.exports = router;
