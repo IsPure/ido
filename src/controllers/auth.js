@@ -73,7 +73,7 @@ exports.logout = async (req, res) => {
 
 // GUEST LIST ROUTES
 
-//  gets individual user guest list
+//  gets individual user's guest list
 exports.protected = async (req, res) => {
   try {
     const user = await db.query(
@@ -117,7 +117,8 @@ exports.addGuest = async (req, res) => {
         stdStatus,
       ]
     );
-    res.json(newGuest.rows);
+    console.log(req.body);
+    res.json("Guest was succesfully added").json(newGuest.rows);
     console.log(req.body);
   } catch (error) {
     console.log(error.message);
@@ -136,7 +137,7 @@ exports.updateGuest = async (req, res) => {
     if (updatingGuest.rows === 0) {
       return res.json("You are not authorized to change this guest's info.");
     }
-    res.json("Guest was updated successfully");
+    res.json("Guest was updated successfully"), updatingGuest.rows;
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Server Error");
@@ -147,7 +148,7 @@ exports.deleteGuest = async (req, res) => {
   try {
     const { id } = req.params;
     const deletingGuest = await db.query(
-      "DELETE FROM guests WHERE guest_id = $1",
+      "DELETE FROM guests WHERE guest_id = $1 RETURNING *",
       [id]
     );
     res.json("Guest deleted successfully");
@@ -161,5 +162,26 @@ exports.deleteGuest = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
     res.status(500).send();
+  }
+};
+// gets individual guest
+exports.getIndividualGuest = async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      "SELECT * FROM guests WHERE user_id = $1 AND guest_id = $2",
+      [req.user.id, req.params.id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Guest not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      guest: rows[0],
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      error: error.message,
+    });
   }
 };

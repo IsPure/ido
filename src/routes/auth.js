@@ -9,6 +9,7 @@ const {
   allGuests,
   updateGuest,
   deleteGuest,
+  getIndividualGuest,
 } = require("../controllers/auth");
 const {
   validationMiddleware,
@@ -24,10 +25,11 @@ router.post("/login", loginValidation, validationMiddleware, login);
 router.get("/logout", logout);
 
 // CRUD Routes
-router.get("/protected", userAuth, protected);
+router.get("/my-guests", userAuth, protected);
 router.post("/protected", userAuth, addGuest);
 router.get("/all-guests", userAuth, allGuests);
-router.put("/protected/:id", userAuth, updateGuest);
-router.delete("/protected/:id", userAuth, deleteGuest);
+router.put("/guest/:id", userAuth, updateGuest);
+router.delete("/guest/:id", userAuth, deleteGuest);
+router.get("/guest/:id", userAuth, getIndividualGuest);
 
 module.exports = router;
