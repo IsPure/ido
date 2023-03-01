@@ -91,8 +91,9 @@ exports.protected = async (req, res) => {
 exports.allGuests = async (req, res) => {
   try {
     const user = await db.query(
-      "SELECT users.user_email, guests.guest_id, guests.guest_name, guests.guest_number, guests.address, guests.rsvp_status, guests.invite_sent, guests.std_sent FROM users LEFT JOIN guests ON users.user_id = guests.user_id"
+      "SELECT users.user_email, guests.guest_id, guests.guest_name, guests.guest_number, guests.address, guests.rsvp_status, guests.invite_sent, guests.std_sent FROM users JOIN guests ON users.user_id = guests.user_id"
     );
+    //logic here to not display info that isn't there
 
     res.json(user.rows);
   } catch (error) {
