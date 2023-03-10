@@ -113,9 +113,9 @@ exports.addGuest = async (req, res) => {
         name,
         numGuest,
         address,
-        rsvpStatus,
-        inviteStatus,
-        stdStatus,
+        rsvpStatus || false,
+        inviteStatus || false,
+        stdStatus || false,
       ]
     );
     console.log(req.body);
@@ -133,7 +133,15 @@ exports.updateGuest = async (req, res) => {
       req.body;
     const updatingGuest = await db.query(
       "UPDATE guests SET guest_name = $2, guest_number = $3, address = $4, rsvp_status = $5, invite_sent = $6, std_sent = $7 WHERE guest_id = $1 RETURNING *",
-      [id, name, numGuest, address, rsvpStatus, inviteStatus, stdStatus]
+      [
+        id,
+        name,
+        numGuest,
+        address,
+        rsvpStatus || false,
+        inviteStatus || false,
+        stdStatus || false,
+      ]
     );
     if (updatingGuest.rows === 0) {
       return res.json("You are not authorized to change this guest's info.");
